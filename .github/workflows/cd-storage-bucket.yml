@@ -16,24 +16,28 @@ jobs:
 
     timeout-minutes: 20
 
-    env:
-      AWS_REGION: eu-west-3
-
     steps:
-      - uses: actions/checkout@v4.1.1
+      - name: Checkout code
+        uses: actions/checkout@v4.1.1
 
-      - uses: hei-school/aws-credentials-setter@v1.0.3
+      - name: Set up AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          secrets: ${{ toJSON(secrets) }}
-          region: ${{ env.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-3
 
       - name: Deploy bucket stack
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
           name: ${{ github.ref_name }}-bucket-poja-soratra-std22074
           template: cf-stacks/storage-bucket-stack.yml
-          tags: "[ { \"Key\": \"app\", \"Value\": \"poja-soratra-std22074\" }, { \"Key\": \"env\", \"Value\": \"${{ github.ref_name }}\" }, { \"Key\": \"user:poja\", \"Value\": \"poja-soratra-std22074\" } ]"
+          tags: |
+            [
+              { "Key": "app", "Value": "poja-soratra-std22074" },
+              { "Key": "env", "Value": "${{ github.ref_name }}" },
+              { "Key": "user:poja", "Value": "poja-soratra-std22074" }
+            ]
           capabilities: CAPABILITY_NAMED_IAM
           no-fail-on-empty-changeset: "1"
-          parameter-overrides:
-            "Env=${{ github.ref_name }}"
+          parameter-overrides: "Env=${{ github.ref_name }}"
