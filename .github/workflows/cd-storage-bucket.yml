@@ -3,7 +3,7 @@ name: CD storage bucket
 on:
   push:
     branches:
-      - 'prod'
+      - 'main'
       - 'preprod'
 
   workflow_dispatch:
